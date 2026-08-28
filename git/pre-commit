@@ -1,0 +1,39 @@
+# Mova esse arquivo para a pasta .git/hooks
+
+#!/bin/sh
+
+echo "Running Gradle pre-commit hooks..."
+
+# Ensure gradlew is executable
+if [ ! -x "./gradlew" ]; then
+    echo "Making gradlew executable..."
+    chmod +x ./gradlew
+fi
+
+# 1. Apply Spotless formatting
+echo "Applying code formatting with Spotless..."
+./gradlew spotlessApply
+
+# Add any files modified by spotless back to the staging area
+git add -u
+
+# 2. Run SpotBugs check
+echo "Running static analysis with SpotBugs..."
+./gradlew spotbugsMain
+
+# Check the exit code of the SpotBugs command
+spotbugs_exit_code=$?
+
+if [ ${spotbugs_exit_code} -ne 0 ]; then
+    echo "----------------------------------------"
+    echo "ERROR: SpotBugs found potential issues."
+    echo "Please fix the issues and try committing again."
+    echo "You can find the report in build/reports/spotbugs/main.html"
+    echo "----------------------------------------"
+    exit 1
+else
+    echo "SpotBugs check passed."
+fi
+
+echo "Pre-commit checks completed successfully."
+exit 0
