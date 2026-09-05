@@ -12,7 +12,7 @@ public final class PaginatedTableData implements TableData {
     }
     if (pageSize <= 0) {
       throw new IllegalArgumentException("Page size must be positive");
-    } 
+    }
     this.data = data;
     this.pageSize = pageSize;
   }
